@@ -63,6 +63,23 @@ def account(request):
     print(acc)
    
     
-    return render(request,'polls/account.html',{'acc':acc})
+    return render(request,'polls/main.html',{'acc':acc})
+
+def logout(request):
+    cpStatus.PlusDisconnect()
+    os.system('taskkill /IM coStarter* /F /T')
+    os.system('taskkill /IM CpStart* /F /T')
+    os.system('taskkill /IM DibServer* /F /T')
+    os.system('wmic process where "name like \'%coStarter%\'" call terminate')
+    os.system('wmic process where "name like \'%CpStart%\'" call terminate')
+    os.system('wmic process where "name like \'%DibServer%\'" call terminate')
+    return render(request,'polls/login.html')
+
+
+       
+
+
+
+
 
 pythoncom.CoUninitialize()

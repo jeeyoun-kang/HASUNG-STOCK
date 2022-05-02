@@ -1,38 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
+
 <body>
-    <script>
-        function addRow() {
+  <script>
+    function addRow() {
       // table element 찾기
       const table = document.getElementById('fruits');
-      
+
       // 새 행(Row) 추가 (테이블 중간에)
       const newRow = table.insertRow(1);
-      
+
       // 새 행(Row)에 Cell 추가
       const newCell1 = newRow.insertCell(0);
       const newCell2 = newRow.insertCell(1);
-      
+
       // Cell에 텍스트 추가
       newCell1.innerText = '새 과일';
       newCell2.innerText = 'New Fruit';
     }
-    </script>
-	<form id="testform" action="/main/account/" method="post">{% csrf_token %}
-        <table id='fruits' border="1">
+  </script>
+  <form id="testform" action="/main/current/" method="post">{% csrf_token %}
+    <input type="submit" value="현재정보">
+  </form>
+  <form id="testform" action="/main/account/" method="post">{% csrf_token %}
+    <!-- <table id='fruits' border="1">
             <tr><td>사과</td><td>apple</td></tr>
             <tr><td>오렌지<td>orange</td></tr>
             <tr><td>바나나</td><td>banana</td></tr>
-          </table>
-        <input type="submit" value="계좌정보" onclick='addRow()'>
-		<input type="submit" value="계좌정보" onclick='addRow()'>
-   </form>
+          </table> -->
 
+    <input type="submit" value="계좌정보">
+    {{acc}}
+  </form>
+  <form id="testform" action="" method="post">{% csrf_token %}
+    <input type="submit" value="수익률">
+  </form>
+  <form id="testform" action="" method="post">{% csrf_token %}
+    <input type="submit" value="매수">
+  </form>
+  <form id="testform" action="" method="post">{% csrf_token %}
+    <input type="submit" value="매도">
+  </form>
+  <form id="testform" action="" method="post">{% csrf_token %}
+    <input type="submit" value="정정/취소">
+  </form>
+  <form id="testform" action="" method="post">{% csrf_token %}
+    <input type="submit" value="자동매매">
+  </form>
+  <form id="logout" action="/main/logout/" method="post">{% csrf_token %}
+  <input type = "submit" value ="로그아웃" onclick="alert('로그아웃 하시겠습니까?')"></form>
 </body>
+
 </html>
