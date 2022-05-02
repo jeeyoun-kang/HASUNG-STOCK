@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="testform" action="/main/" method="post">{% csrf_token %}
+         <label for="fname">아이디:</label><br>
+         <input type="text" id="fname" name="num"><br> 
+         <label for="lname">비밀번호:</label><br> 
+         <input type="password" id="lname" name="name"><br>
+         <label for="lname">공인인증비밀번호:</label><br> 
+         <input type="password" id="pname" name="pass"><br><br>
+         
+         <input type="submit" value="확인">
+    </form>
+</body>
+</html>
