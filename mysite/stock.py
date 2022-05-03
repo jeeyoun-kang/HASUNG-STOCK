@@ -259,7 +259,7 @@ def sell_all():
 if __name__ == '__main__':
     
         try:
-            symbol_list = ['A122630'] # 사용자가 이용하게끔 변수로 바꿔야함
+            symbol_list = ['A005930'] # 사용자가 이용하게끔 변수로 바꿔야함
             bought_list = []  # 매수 완료된 종목 리스트
             target_buy_count = 0  # 매수할 종목 수
             buy_percent = 1 #퍼센트도 변수로 넣어야된다.

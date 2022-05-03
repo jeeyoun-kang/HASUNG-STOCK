@@ -25,6 +25,20 @@
       newCell1.innerText = '새 과일';
       newCell2.innerText = 'New Fruit';
     }
+    function removeCheck() {
+
+      if (confirm("로그아웃 하시겠습니까?") == true) {    //확인
+
+        document.removefrm.submit();
+
+      } else {   //취소
+
+        return false;
+
+      }
+
+    }
+
   </script>
   <form id="testform" action="/main/current/" method="post">{% csrf_token %}
     <input type="submit" value="현재정보">
@@ -37,7 +51,7 @@
           </table> -->
 
     <input type="submit" value="계좌정보">
-    {{acc}}
+    </br>계좌번호:{{acc}}
   </form>
   <form id="testform" action="" method="post">{% csrf_token %}
     <input type="submit" value="수익률">
@@ -51,11 +65,16 @@
   <form id="testform" action="" method="post">{% csrf_token %}
     <input type="submit" value="정정/취소">
   </form>
-  <form id="testform" action="" method="post">{% csrf_token %}
+  <form id="testform2" action="/main/auto/" method="post">{% csrf_token %}
     <input type="submit" value="자동매매">
+    </br>수량:
+
+
+
   </form>
   <form id="logout" action="/main/logout/" method="post">{% csrf_token %}
-  <input type = "submit" value ="로그아웃" onclick="alert('로그아웃 하시겠습니까?')"></form>
+    <input type="submit" value="로그아웃" onclick="removeCheck()">
+  </form>
 </body>
 
 </html>
