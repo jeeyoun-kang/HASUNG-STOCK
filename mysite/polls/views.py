@@ -11,6 +11,12 @@ import pythoncom
 from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render
 from pywinauto import application
+from datetime import time
+import time
+from enum import Enum
+from matplotlib import pyplot as plt
+import json
+
 pythoncom.CoInitialize()
 # 크레온 플러스 공통 OBJECT
 cpCodeMgr = win32com.client.Dispatch('CpUtil.CpStockCode')
@@ -21,6 +27,114 @@ cpOhlc = win32com.client.Dispatch('CpSysDib.StockChart')
 cpBalance = win32com.client.Dispatch('CpTrade.CpTd6033')
 cpCash = win32com.client.Dispatch('CpTrade.CpTdNew5331A')
 cpOrder = win32com.client.Dispatch('CpTrade.CpTd0311')
+
+g_objCodeMgr = win32com.client.Dispatch('CpUtil.CpCodeMgr')
+g_objCpStatus = win32com.client.Dispatch('CpUtil.CpCybos')
+g_objCpTrade = win32com.client.Dispatch('CpTrade.CpTdUtil')
+g_objFutureMgr = win32com.client.Dispatch("CpUtil.CpFutureCode")
+g_objKsdFMgr = win32com.client.Dispatch("CpUtil.CpKFutureCode")
+g_objElwMgr = win32com.client.Dispatch("CpUtil.CpElwCode")
+g_objOptionMgr = win32com.client.Dispatch("CpUtil.CpOptionCode")
+g_objUsMgr = win32com.client.Dispatch("CpUtil.CpUsCode")
+
+
+# 통신 제한 회피를 위한 대기 함수
+# type 0 - 주문 관련 제한 1 - 시세 관련 제한
+class Rqtype(Enum):
+    ORDER = 0
+    SISE = 1
+
+def waitRqLimit(rqtype):
+    
+    remainCount = g_objCpStatus.GetLimitRemainCount(rqtype.value)
+
+    if remainCount > 0:
+        print('남은 횟수: ',remainCount)
+        return True
+
+    remainTime = g_objCpStatus.LimitRequestRemainTime
+    print('조회 제한 회피 time wait %.2f초 ' % (remainTime / 1000.0))
+    time.sleep(remainTime / 1000)
+    return True
+
+
+
+def chart_rq1(request) :
+    chart_simple1(ord('D'), 'A005930', 100)
+    return render(request,'polls/test2.html')
+
+
+# 일/주/월 차트 조회 - 개수로 조회
+def chart_simple1(request) :
+    objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
+    objStockChart.SetInputValue(0, 'A005930')  # 종목 코드 - 삼성전자
+    objStockChart.SetInputValue(1, ord('2'))  # 개수로 조회
+    objStockChart.SetInputValue(4, 100)
+    objStockChart.SetInputValue(5, [0, 2, 3, 4, 5, 8])  # 날짜,시가,고가,저가,종가,거래량
+    objStockChart.SetInputValue(6, ord('D'))  # '차트 주기
+    objStockChart.SetInputValue(8, ord('0')) # 갭보정여부(char)
+    objStockChart.SetInputValue(9, ord('1'))  # 수정주가(char) - '0': 무수정 '1': 수정주가
+    objStockChart.SetInputValue(10, ord('1')) # 거래량구분(char) - '1' 시간외거래량모두포함[Default]
+   
+    hi = []
+    totlen = 0
+    
+    while (1):
+        # 시세 연속 제한 체크 
+        waitRqLimit(Rqtype.SISE)
+        # 차트 통신
+        objStockChart.BlockRequest()
+        rqStatus = objStockChart.GetDibStatus()
+        rqRet = objStockChart.GetDibMsg1()
+        #print("통신상태", rqStatus, rqRet)
+        if rqStatus != 0:
+            return
+
+        clen = objStockChart.GetHeaderValue(3)
+        totlen += clen
+        print(totlen)
+        
+
+        print("날짜", "시가", "고가", "저가", "종가", "거래량")
+
+        for i in range(0, clen) :
+            #item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }
+            #item2 ={ "Date": 1617278400000, "Open": 529.93, "High": 540.5, "Low": 527.03, "Close": 539.42, "Volume": 3938600 }
+            item = {}
+
+            item['Date'] = objStockChart.GetDataValue(0, i)
+            item['Open'] = objStockChart.GetDataValue(1, i)
+            item['High'] = objStockChart.GetDataValue(2, i)
+            item['Low'] = objStockChart.GetDataValue(3, i)
+            item['Close'] = objStockChart.GetDataValue(3, i)
+            item['Volume'] = objStockChart.GetDataValue(5, i)
+            for j in range(0,clen):
+                
+                hi.append(item)
+               
+                
+            #list1.append(item['날짜'])
+            #list2.append(item['시가'])
+            #print(item)
+        
+                        
+
+        if (objStockChart.Continue == False):
+            #print('연속플래그 없음')
+            break
+    
+    print(hi)
+       
+    return render(request,'polls/test2.html',{'hi':hi})
+
+    #plt.plot(list1,list2,'ro')
+    #plt.show()
+
+   
+def charttest(request):
+    item={}
+    item['거래량']={1,2,3}
+    return render(request,'polls/test2.html',{'item':item})
 
 def get_current_cash():
     """증거금 100% 주문 가능 금액을 반환한다."""
@@ -347,9 +461,9 @@ def account(request):
     cpTradeUtil.TradeInit()
     acc = cpTradeUtil.AccountNumber[0] #계좌번호
     print(acc)
-   
+    name = '계좌정보:'
     
-    return render(request,'polls/main.html',{'acc':acc})
+    return render(request,'polls/main.html',{'acc':acc,'name':name})
 
 def logout(request):
     cpStatus.PlusDisconnect()
@@ -365,10 +479,27 @@ def auto(request):
     #os.system("python stock.py")
     #test(request)
     return render(request,'polls/main.html')
-       
 
-
-
+def current(request):
+    cpTradeUtil.TradeInit()
+    acc = cpTradeUtil.AccountNumber[0]  # 계좌번호
+    accFlag = cpTradeUtil.GoodsList(acc, 1)  # -1:전체, 1:주식, 2:선물/옵션
+    cpBalance.SetInputValue(0, acc)  # 계좌번호
+    cpBalance.SetInputValue(1, accFlag[0])  # 상품구분 - 주식 상품 중 첫번째
+    cpBalance.SetInputValue(2, 50)  # 요청 건수(최대 50)
+    cpBalance.BlockRequest()
+    hi = '계좌명:'
+    #account = '결제잔고수량:'
+    money = '평가금액:'
+    profit = '평가손익:'
+    event = '종목수:'
+    hi1 = str(cpBalance.GetHeaderValue(0))
+    #account1 = str(cpBalance.GetHeaderValue(1))
+    money1 = str(cpBalance.GetHeaderValue(3))
+    profit1 = str(cpBalance.GetHeaderValue(4))
+    event1 = str(cpBalance.GetHeaderValue(7))
+    
+    return render(request,'polls/main.html',{'hi':hi,'money':money,'profit':profit,'event':event,'hi1':hi1,'money1':money1,'profit1':profit1,'event1':event1})
 
 
 pythoncom.CoUninitialize()

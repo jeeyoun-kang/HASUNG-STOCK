@@ -238,15 +238,15 @@ def chart_simple1(dwm, code, cnt) :
 
         for i in range(0, clen) :
             item = {}
-            item['날짜'] = objStockChart.GetDataValue(0, i)
-            item['시가'] = objStockChart.GetDataValue(1, i)
-            item['고가'] = objStockChart.GetDataValue(2, i)
-            item['저가'] = objStockChart.GetDataValue(3, i)
-            item['종가'] = objStockChart.GetDataValue(4, i)
-            item['거래량'] = objStockChart.GetDataValue(5, i)
+            item['Date'] = objStockChart.GetDataValue(0, i)
+            item['Open'] = objStockChart.GetDataValue(1, i)
+            item['High'] = objStockChart.GetDataValue(2, i)
+            item['Low'] = objStockChart.GetDataValue(3, i)
+            item['Close'] = objStockChart.GetDataValue(3, i)
+            item['Volume'] = objStockChart.GetDataValue(5, i)
             
-            list1.append(item['날짜'])
-            list2.append(item['시가'])
+            
+            
             print(item)
 
         if (objStockChart.Continue == False):
