@@ -57,10 +57,10 @@
   <form id="testform" action="" method="post">{% csrf_token %}
     <input type="submit" value="수익률">
   </form>
-  <form id="testform" action="" method="post">{% csrf_token %}
+  <form id="testform" action="/main/buy/" method="post">{% csrf_token %}
     <input type="submit" value="매수">
   </form>
-  <form id="testform" action="" method="post">{% csrf_token %}
+  <form id="testform" action="/main/sell/" method="post">{% csrf_token %}
     <input type="submit" value="매도">
   </form>
   <form id="testform" action="" method="post">{% csrf_token %}
@@ -68,6 +68,9 @@
   </form>
   <form id="testform2" action="/main/auto/" method="post">{% csrf_token %}
     <input type="submit" value="자동매매">
+  </br>종목 : <input name ='stockcode2' type="text">{{stockcode2re}}
+  </br>수량/퍼센트 : <input name = 'stockvalue' type="number" step="0.01">{{stockvaluere}}
+    
     </br>
 
 

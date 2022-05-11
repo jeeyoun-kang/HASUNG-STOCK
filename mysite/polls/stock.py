@@ -6,7 +6,8 @@ from slacker import Slacker
 import time, calendar
 import requests
 
-myToken = 'xoxb-3219594117412-3217278804307-SrxWNRAAaFBfQvljXNi6pEg2'
+
+
 
  
 def post_message(token, channel, text):
@@ -19,7 +20,7 @@ def dbgout(message):
     """인자로 받은 문자열을 파이썬 셸과 슬랙으로 동시에 출력한다."""
     print(datetime.now().strftime('[%m/%d %H:%M:%S]'), message)
     strbuf = datetime.now().strftime('[%m/%d %H:%M:%S] ') + message
-    post_message(myToken,"#stock",strbuf)
+    
 
 def printlog(message, *args):
     """인자로 받은 문자열을 파이썬 셸에 출력한다."""
@@ -262,11 +263,17 @@ def sell_all():
 
 
 if __name__ == '__main__':
+    stockcode2 = sys.argv[1] 
+    stockvalue = sys.argv[2]
+    print(type(stockcode2))
+    print(type(float(stockvalue)))
+    a = 'A005930'
+    buy_number = 0.15
     try:
-        symbol_list = ['A001440']
+        symbol_list = [stockcode2]
         bought_list = []  # 매수 완료된 종목 리스트
         target_buy_count = 1  # 매수할 종목 수
-        buy_percent = 0.15
+        buy_percent = float(stockvalue)
         printlog('check_creon_system() :', check_creon_system())  # 크레온 접속 점검
         stocks = get_stock_balance('ALL')  # 보유한 모든 종목 조회
         total_cash = int(get_current_cash())  # 100% 증거금 주문 가능 금액 조회

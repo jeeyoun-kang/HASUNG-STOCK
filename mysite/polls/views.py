@@ -16,6 +16,8 @@ import time
 from enum import Enum
 from matplotlib import pyplot as plt
 import json
+global stockcode2 
+global stockvalue
 
 pythoncom.CoInitialize()
 # 크레온 플러스 공통 OBJECT
@@ -57,6 +59,9 @@ def waitRqLimit(rqtype):
     time.sleep(remainTime / 1000)
     return True
 
+def charttest(request):
+    data = [{ 'Date': 1646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }]
+    return render(request,'polls/test.html',{'data':data})
 
 
 def chart_rq1(request) :
@@ -76,7 +81,7 @@ def chart_simple1(request) :
     objStockChart.SetInputValue(9, ord('1'))  # 수정주가(char) - '0': 무수정 '1': 수정주가
     objStockChart.SetInputValue(10, ord('1')) # 거래량구분(char) - '1' 시간외거래량모두포함[Default]
    
-    hi = []
+    hi = { 'Date': 1646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }
     totlen = 0
     
     while (1):
@@ -97,20 +102,20 @@ def chart_simple1(request) :
 
         print("날짜", "시가", "고가", "저가", "종가", "거래량")
 
-        for i in range(0, clen) :
-            #item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }
-            #item2 ={ "Date": 1617278400000, "Open": 529.93, "High": 540.5, "Low": 527.03, "Close": 539.42, "Volume": 3938600 }
-            item = {}
+        # for i in range(0, clen) :
+        #     #item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }
+        #     #item2 ={ "Date": 1617278400000, "Open": 529.93, "High": 540.5, "Low": 527.03, "Close": 539.42, "Volume": 3938600 }
+        #     item = {}
 
-            item['Date'] = objStockChart.GetDataValue(0, i)
-            item['Open'] = objStockChart.GetDataValue(1, i)
-            item['High'] = objStockChart.GetDataValue(2, i)
-            item['Low'] = objStockChart.GetDataValue(3, i)
-            item['Close'] = objStockChart.GetDataValue(3, i)
-            item['Volume'] = objStockChart.GetDataValue(5, i)
-            for j in range(0,clen):
+        #     item['Date'] = objStockChart.GetDataValue(0, i)
+        #     item['Open'] = objStockChart.GetDataValue(1, i)
+        #     item['High'] = objStockChart.GetDataValue(2, i)
+        #     item['Low'] = objStockChart.GetDataValue(3, i)
+        #     item['Close'] = objStockChart.GetDataValue(3, i)
+        #     item['Volume'] = objStockChart.GetDataValue(5, i)
+        #     for j in range(0,clen):
                 
-                hi.append(item)
+        #         hi.append(item)
                
                 
             #list1.append(item['날짜'])
@@ -123,7 +128,7 @@ def chart_simple1(request) :
             #print('연속플래그 없음')
             break
     
-    print(hi)
+    print(data)
        
     return render(request,'polls/test2.html',{'hi':hi})
 
@@ -131,10 +136,7 @@ def chart_simple1(request) :
     #plt.show()
 
    
-def charttest(request):
-    item={}
-    item['거래량']={1,2,3}
-    return render(request,'polls/test2.html',{'item':item})
+
 
 def get_current_cash():
     """증거금 100% 주문 가능 금액을 반환한다."""
@@ -461,7 +463,7 @@ def account(request):
     cpTradeUtil.TradeInit()
     acc = cpTradeUtil.AccountNumber[0] #계좌번호
     print(acc)
-    name = '계좌정보:'
+    name = '계좌번호:'
     
     return render(request,'polls/main.html',{'acc':acc,'name':name})
 
@@ -475,9 +477,31 @@ def logout(request):
     os.system('wmic process where "name like \'%DibServer%\'" call terminate')
     return render(request,'polls/login.html')
 
+def test2(request):
+    var1 = 10
+    var2 = "hello"
+    #os.system("python polls/stock.py {0} {1}".format(var1, var2))
+    #testvalue = 2
+    #os.system("python polls/stock.py")
+    return render(request,'polls/main.html')
+
 def auto(request):
-    #os.system("python stock.py")
+    
+    stockcode2 = request.POST.get('stockcode2')
+    stockvalue = request.POST.get('stockvalue')
+    print(stockcode2)
+    print(stockvalue)
+    os.system("python polls/stock.py {0} {1}".format(stockcode2, stockvalue))
+    #print(stocklll)
+    #print(stockcodelll)
+    
     #test(request)
+    return render(request,'polls/main.html')
+
+def stockpy(request):
+    print(stockcode2)
+    print(stockvalue)
+    os.system("python polls/stock.py")
     return render(request,'polls/main.html')
 
 def current(request):
@@ -500,6 +524,9 @@ def current(request):
     event1 = str(cpBalance.GetHeaderValue(7))
     
     return render(request,'polls/main.html',{'hi':hi,'money':money,'profit':profit,'event':event,'hi1':hi1,'money1':money1,'profit1':profit1,'event1':event1})
+
+
+
 
 
 pythoncom.CoUninitialize()

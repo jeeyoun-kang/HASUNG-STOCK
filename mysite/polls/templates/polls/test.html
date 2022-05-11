@@ -1,17 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-hi
+
 <body>
     <script>
-        var a ="hi";
-        var b = a;
-        document.writeln(b);
+        var c = typeof ([{ 'Date': 1646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }])
+        ///document.writeln(c);
+        var data = {
+            name: "wkim",
+            work: "coder"
+        }
+        var apple = '{ "name":"John", "age":30, "city":"New York"}'
+
+        //var apple = JSON.parse(apple);
+        //var c = type(apple);
+        //document.writeln(apple);
+        var data2 = "{{data}}";
+        //document.writeln(data2);
+        var dataresult = JSON.parse(data2);
+        console.log(type(data2));
+
+
     </script>
 </body>
+
 </html>
