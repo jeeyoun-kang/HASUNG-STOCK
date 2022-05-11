@@ -4,7 +4,6 @@ from . import views
 
 urlpatterns = [
     path('', views.login),
-    path('main/account/',views.account),
     path('main/',views.hello),
     path('test/',views.test),
     path('main/logout/',views.logout),
@@ -14,7 +13,8 @@ urlpatterns = [
     path('main/stock/',views.stockpy),
     path('main/charttest/',views.charttest),
     path('main/test2/',views.test2),
-    #path('main/buy/',views.mainbuy),
+    path('main/dl/',views.dl),
+    path('main/buy/',views.mainbuy),
     #path('main/sell/',views.mainsell),
     #path('login/',views.login),
 ]

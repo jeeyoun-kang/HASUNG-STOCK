@@ -10,17 +10,42 @@
 
 <body>
     <script type="text/javascript">
+        var i = 0;
         var data = "{{hi}}";
-        
-        document.write(data);
-        console.log(data);
-        document.write(typeof(data));
-        let test = JSON.parse(data);
-        document.write(test);
-        var data1 = [
-            { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }
+        var data1 = [ { Date: 1621339200000, Open: 488.4, High: 493.48, Low: 486.19, Close: 486.28, Volume: 2350500 }];
+        // var data = "[ { 'Date': 162, 'Open': 488.4 }]";
+        var arr = [];
+        var arr2 = [];
+        arr[0] = ""; arr[1] = ""; arr[2] = ""; arr[3] = ""; arr[4] = ""; arr[5] = "";
+        var j = 0;
+        while (data[i] != "]") {
+            if (data[i] == ":") {
+                i++;
+                while (data[i] != ",") {
+                    i++
+                    arr[j] = arr[j] + data[i];
 
-        ];
+                    if (data[i + 1] == "}") { break; }
+                    if (data[i + 1] == ",") { break; }
+                }
+                j++;
+            }
+            i++;
+        }
+        var k = 0;
+        
+        var testdata = [ { Date: 1621339200000, Open: 488.4, High: 493.48, Low: 486.19, Close: 486.28, Volume: 2350500 }];
+        arr = JSON.parse(JSON.stringify(arr))
+        document.write(arr);
+        document.write(typeof(arr));
+        //document.write(typeof(JSON.parse(JSON.stringify(arr))));
+        //document.write(typeof(JSON.parse(JSON.stringify(data))));
+        //document.write(JSON.parse(JSON.stringify(arr)));
+        
+       
+
+
+        //document.write(arr);
 
     </script>
 </body>

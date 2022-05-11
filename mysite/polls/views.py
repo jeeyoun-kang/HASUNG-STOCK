@@ -81,7 +81,8 @@ def chart_simple1(request) :
     objStockChart.SetInputValue(9, ord('1'))  # 수정주가(char) - '0': 무수정 '1': 수정주가
     objStockChart.SetInputValue(10, ord('1')) # 거래량구분(char) - '1' 시간외거래량모두포함[Default]
    
-    hi = { 'Date': 1646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }
+    hi = [{ 'Date': 646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }]
+    testdata = str(hi)
     totlen = 0
     
     while (1):
@@ -128,15 +129,16 @@ def chart_simple1(request) :
             #print('연속플래그 없음')
             break
     
-    print(data)
+    #print(t)
        
-    return render(request,'polls/test2.html',{'hi':hi})
+    return render(request,'polls/test2.html',{'hi':testdata})
 
     #plt.plot(list1,list2,'ro')
     #plt.show()
 
    
-
+def dl(request):
+    return render(request,"polls/dl.html")
 
 def get_current_cash():
     """증거금 100% 주문 가능 금액을 반환한다."""
@@ -459,13 +461,7 @@ def test(request):
 def login(request):
     return render(request,'polls/login.html')
 
-def account(request):
-    cpTradeUtil.TradeInit()
-    acc = cpTradeUtil.AccountNumber[0] #계좌번호
-    print(acc)
-    name = '계좌번호:'
-    
-    return render(request,'polls/main.html',{'acc':acc,'name':name})
+
 
 def logout(request):
     cpStatus.PlusDisconnect()
@@ -499,8 +495,7 @@ def auto(request):
     return render(request,'polls/main.html')
 
 def stockpy(request):
-    print(stockcode2)
-    print(stockvalue)
+    
     os.system("python polls/stock.py")
     return render(request,'polls/main.html')
 
@@ -512,6 +507,10 @@ def current(request):
     cpBalance.SetInputValue(1, accFlag[0])  # 상품구분 - 주식 상품 중 첫번째
     cpBalance.SetInputValue(2, 50)  # 요청 건수(최대 50)
     cpBalance.BlockRequest()
+    cpTradeUtil.TradeInit()
+    acc = cpTradeUtil.AccountNumber[0] #계좌번호
+    print(acc)
+    name = '계좌번호:'
     hi = '계좌명:'
     #account = '결제잔고수량:'
     money = '평가금액:'
@@ -523,7 +522,46 @@ def current(request):
     profit1 = str(cpBalance.GetHeaderValue(4))
     event1 = str(cpBalance.GetHeaderValue(7))
     
-    return render(request,'polls/main.html',{'hi':hi,'money':money,'profit':profit,'event':event,'hi1':hi1,'money1':money1,'profit1':profit1,'event1':event1})
+    return render(request,'polls/main.html',{'hi':hi,'money':money,'profit':profit,'event':event,'hi1':hi1,'money1':money1,'profit1':profit1,'event1':event1,'acc':acc,'name':name})
+
+def mainbuy():
+    # 연결 여부 체크
+    objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+    bConnect = objCpCybos.IsConnect
+    if (bConnect == 0):
+        print("PLUS가 정상적으로 연결되지 않음. ")
+        exit()
+ 
+# 주문 초기화
+    objTrade =  win32com.client.Dispatch("CpTrade.CpTdUtil")
+    initCheck = objTrade.TradeInit(0)
+    if (initCheck != 0):
+        print("주문 초기화 실패")
+        exit()
+ 
+ 
+# 주식 매수 주문
+    acc = objTrade.AccountNumber[0] #계좌번호
+    accFlag = objTrade.GoodsList(acc, 1)  # 주식상품 구분
+    print(acc, accFlag[0])
+    objStockOrder = win32com.client.Dispatch("CpTrade.CpTd0311")
+    objStockOrder.SetInputValue(0, "2")   # 2: 매수
+    objStockOrder.SetInputValue(1, acc )   #  계좌번호
+    objStockOrder.SetInputValue(2, accFlag[0])   # 상품구분 - 주식 상품 중 첫번째
+    objStockOrder.SetInputValue(3, "A003540")   # 종목코드 - A003540 - 대신증권 종목
+    objStockOrder.SetInputValue(4, 10)   # 매수수량 10주
+    #objStockOrder.SetInputValue(5, 14100)   # 주문단가  - 14,100원
+    objStockOrder.SetInputValue(7, "0")   # 주문 조건 구분 코드, 0: 기본 1: IOC 2:FOK
+    objStockOrder.SetInputValue(8, "01")   # 주문호가 구분코드 - 01: 보통
+ 
+# 매수 주문 요청
+    objStockOrder.BlockRequest()
+ 
+    rqStatus = objStockOrder.GetDibStatus()
+    rqRet = objStockOrder.GetDibMsg1()
+    print("통신상태", rqStatus, rqRet)
+    if rqStatus != 0:
+        exit()
 
 
 

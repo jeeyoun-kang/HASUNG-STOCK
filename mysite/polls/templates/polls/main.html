@@ -40,23 +40,19 @@
     }
    
   </script>
+ 
   <form id="testform" action="/main/current/" method="post">{% csrf_token %}
-    <input type="submit" value="현재정보">
-    </br>{{hi}} {{hi1}}
-    </br>{{money}} {{money1}}
-    </br>{{profit}} {{profit1}}
-    </br>{{event}} {{event1}}
-  </form>
-  <form id="testform" action="/main/account/" method="post">{% csrf_token %}
    
 
     <input type="submit" value="계좌정보">
-    </br>{{name}}  {{acc}}
+  </br>{{hi}} {{hi1}}
+  </br>{{money}} {{money1}}
+  </br>{{profit}} {{profit1}}
+  </br>{{event}} {{event1}}
+  </br>{{name}}  {{acc}}
     
   </form>
-  <form id="testform" action="" method="post">{% csrf_token %}
-    <input type="submit" value="수익률">
-  </form>
+  
   <form id="testform" action="/main/buy/" method="post">{% csrf_token %}
     <input type="submit" value="매수">
   </form>
@@ -79,6 +75,10 @@
   <form id="logout" action="/main/logout/" method="post">{% csrf_token %}
     <input type="submit" value="로그아웃" onclick="removeCheck()">
   </form>
+</form>
+<form  action="/main/dl/" method="post">{% csrf_token %}
+  <input type="submit" value="DL추천" >
+</form>
 </body>
 
 </html>
