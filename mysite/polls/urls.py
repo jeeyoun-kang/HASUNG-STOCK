@@ -15,7 +15,8 @@ urlpatterns = [
     path('main/dl/',views.dl),
     path('main/buy/',views.mainbuy),
     path('main/sell',views.mainsell),
-    path('main/set',views.set),
+    path('main/set/',views.set),
+    path('main/fix/',views.fix),
     #path('main/sell/',views.mainsell),
     #path('login/',views.login),
 ]

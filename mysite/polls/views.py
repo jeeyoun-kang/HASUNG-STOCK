@@ -598,6 +598,8 @@ def mainsell(request):
  
     return render(request,'polls/main.html')
 
+def fix(request):
+    return render(request,'polls/main.html')
 
 
 pythoncom.CoUninitialize()
