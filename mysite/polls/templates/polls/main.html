@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+  div {
+    width: 100%;
+
+  }
+
+  div.left {
+    width: 70%;
+    float: left;
+
+
+  }
+
+  div.right {
+    width: 30%;
+    float: right;
+
+
+  }
+</style>
 
 <head>
   <meta charset="UTF-8">
@@ -38,47 +58,68 @@
       }
 
     }
-   
+
   </script>
- 
-  <form id="testform" action="/main/current/" method="post">{% csrf_token %}
-   
-
-    <input type="submit" value="계좌정보">
-  </br>{{hi}} {{hi1}}
-  </br>{{money}} {{money1}}
-  </br>{{profit}} {{profit1}}
-  </br>{{event}} {{event1}}
-  </br>{{name}}  {{acc}}
-    
-  </form>
-  
-  <form id="testform" action="/main/buy/" method="post">{% csrf_token %}
-    <input type="submit" value="매수">
-  </form>
-  <form id="testform" action="/main/sell/" method="post">{% csrf_token %}
-    <input type="submit" value="매도">
-  </form>
-  <form id="testform" action="" method="post">{% csrf_token %}
-    <input type="submit" value="정정/취소">
-  </form>
-  <form id="testform2" action="/main/auto/" method="post">{% csrf_token %}
-    <input type="submit" value="자동매매">
-  </br>종목 : <input name ='stockcode2' type="text">{{stockcode2re}}
-  </br>수량/퍼센트 : <input name = 'stockvalue' type="number" step="0.01">{{stockvaluere}}
-    
-    </br>
+  <script> 
+    function submit3(frm) { 
+      frm.action="/main/auto/"; 
+      frm.submit(); 
+      return true; 
+    } 
+    function submit1(frm) { 
+      frm.action="/main/buy/"; 
+      frm.submit(); 
+      return true; 
+    } 
+    function submit2(frm) { 
+      frm.action="/main/sell/"; 
+      frm.submit(); 
+      return true; 
+    } 
+  </script>
+  <div>
+    <div class="right">
+      <form id="testform" action="/main/current/" method="post">{% csrf_token %}
 
 
+        <input type="submit" value="계좌정보">
+        </br>{{hi}} {{hi1}}
+        </br>{{money}} {{money1}}
+        </br>{{profit}} {{profit1}}
+        </br>{{event}} {{event1}}
+        </br>{{name}} {{acc}}
 
-  </form>
-  <form id="logout" action="/main/logout/" method="post">{% csrf_token %}
-    <input type="submit" value="로그아웃" onclick="removeCheck()">
-  </form>
-</form>
-<form  action="/main/dl/" method="post">{% csrf_token %}
-  <input type="submit" value="DL추천" >
-</form>
+      </form>
+      <form id="testform" method="post" action="main/set/">{% csrf_token %}
+        <!-- <form id="testform" action="/main/buy/" method="post">{% csrf_token %}
+        <input type="submit" value="매수">
+      </form> -->
+        <input type="submit" value="매수" onClick='return submit1(this.form);'>
+        <input type="submit" value="매도" onClick='return submit2(this.form);'>
+        <input type="submit" value="자동매매" onClick='return submit3(this.form);'>
+     
+        <!-- <form id="testform" action="/main/sell/" method="post">{% csrf_token %}
+        <input type="submit" value="매도">
+      </form> -->
+        <!-- <form id="testform" action="" method="post">{% csrf_token %}
+        <input type="submit" value="정정/취소">
+      </form> -->
+
+        </br>종목 : <input name='stockcode2' type="text">
+        </br>수량/퍼센트 : <input name='stockvalue' type="number" step="0.01">
+      </form>
+      <form id="logout" action="/main/logout/" method="post">{% csrf_token %}
+        <input type="submit" value="로그아웃" onclick="removeCheck()">
+      </form>
+
+      <form action="/main/dl/" method="post">{% csrf_token %}
+        <input type="submit" value="DL추천">
+      </form>
+    </div>
+    <div>
+      <div class="left">
+
+      </div>
 </body>
 
 </html>

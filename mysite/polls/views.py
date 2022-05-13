@@ -81,8 +81,7 @@ def chart_simple1(request) :
     objStockChart.SetInputValue(9, ord('1'))  # 수정주가(char) - '0': 무수정 '1': 수정주가
     objStockChart.SetInputValue(10, ord('1')) # 거래량구분(char) - '1' 시간외거래량모두포함[Default]
    
-    hi = [{ 'Date': 646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }]
-    testdata = str(hi)
+    hi = [{ 'Date': 646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }] 
     totlen = 0
     
     while (1):
@@ -99,9 +98,6 @@ def chart_simple1(request) :
         clen = objStockChart.GetHeaderValue(3)
         totlen += clen
         print(totlen)
-        
-
-        print("날짜", "시가", "고가", "저가", "종가", "거래량")
 
         # for i in range(0, clen) :
         #     #item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }item = { 'Date': 1617192000000, 'Open': 515.67, 'High': 528.13, 'Low': 515.44, 'Close': 521.66, 'Volume': 3503100 }
@@ -117,21 +113,16 @@ def chart_simple1(request) :
         #     for j in range(0,clen):
                 
         #         hi.append(item)
-               
-                
-            #list1.append(item['날짜'])
-            #list2.append(item['시가'])
+       
             #print(item)
-        
-                        
-
+  
         if (objStockChart.Continue == False):
             #print('연속플래그 없음')
             break
     
     #print(t)
        
-    return render(request,'polls/test2.html',{'hi':testdata})
+    return render(request,'polls/test2.html',{'hi':hi})
 
     #plt.plot(list1,list2,'ro')
     #plt.show()
@@ -494,9 +485,7 @@ def auto(request):
     #test(request)
     return render(request,'polls/main.html')
 
-def stockpy(request):
-    
-    os.system("python polls/stock.py")
+def set(request):
     return render(request,'polls/main.html')
 
 def current(request):
@@ -524,7 +513,11 @@ def current(request):
     
     return render(request,'polls/main.html',{'hi':hi,'money':money,'profit':profit,'event':event,'hi1':hi1,'money1':money1,'profit1':profit1,'event1':event1,'acc':acc,'name':name})
 
-def mainbuy():
+def mainbuy(request):
+    stockcode2 = request.POST.get('stockcode2')
+    stockvalue = request.POST.get('stockvalue')
+    print(type(stockcode2))
+    print(type(stockvalue))
     # 연결 여부 체크
     objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
     bConnect = objCpCybos.IsConnect
@@ -548,8 +541,8 @@ def mainbuy():
     objStockOrder.SetInputValue(0, "2")   # 2: 매수
     objStockOrder.SetInputValue(1, acc )   #  계좌번호
     objStockOrder.SetInputValue(2, accFlag[0])   # 상품구분 - 주식 상품 중 첫번째
-    objStockOrder.SetInputValue(3, "A003540")   # 종목코드 - A003540 - 대신증권 종목
-    objStockOrder.SetInputValue(4, 10)   # 매수수량 10주
+    objStockOrder.SetInputValue(3, "A017040")   # 종목코드 - A017040 - 광명전기
+    objStockOrder.SetInputValue(4, 1)   # 매수수량 
     #objStockOrder.SetInputValue(5, 14100)   # 주문단가  - 14,100원
     objStockOrder.SetInputValue(7, "0")   # 주문 조건 구분 코드, 0: 기본 1: IOC 2:FOK
     objStockOrder.SetInputValue(8, "01")   # 주문호가 구분코드 - 01: 보통
@@ -562,8 +555,48 @@ def mainbuy():
     print("통신상태", rqStatus, rqRet)
     if rqStatus != 0:
         exit()
+    return render(request,'polls/main.html')
 
-
+def mainsell(request):
+    # 연결 여부 체크
+    objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+    bConnect = objCpCybos.IsConnect
+    if (bConnect == 0):
+        print("PLUS가 정상적으로 연결되지 않음. ")
+        exit()
+ 
+    # 주문 초기화
+    objTrade =  win32com.client.Dispatch("CpTrade.CpTdUtil")
+    initCheck = objTrade.TradeInit(0)
+    if (initCheck != 0):
+        print("주문 초기화 실패")
+        exit()
+ 
+ 
+    # 주식 매도 주문
+    acc = objTrade.AccountNumber[0] #계좌번호
+    accFlag = objTrade.GoodsList(acc, 1)  # 주식상품 구분
+    print(acc, accFlag[0])
+    objStockOrder = win32com.client.Dispatch("CpTrade.CpTd0311")
+    objStockOrder.SetInputValue(0, "1")   #  1: 매도
+    objStockOrder.SetInputValue(1, acc )   #  계좌번호
+    objStockOrder.SetInputValue(2, accFlag[0])   #  상품구분 - 주식 상품 중 첫번째
+    objStockOrder.SetInputValue(3, "A003540")   #  종목코드 - A003540 - 대신증권 종목
+    objStockOrder.SetInputValue(4, 10)   #  매도수량 10주   
+    objStockOrder.SetInputValue(5, 14100)   #  주문단가  - 14,100원
+    objStockOrder.SetInputValue(7, "0")   #  주문 조건 구분 코드, 0: 기본 1: IOC 2:FOK
+    objStockOrder.SetInputValue(8, "01")   # 주문호가 구분코드 - 01: 보통
+ 
+    # 매도 주문 요청
+    objStockOrder.BlockRequest()
+ 
+    rqStatus = objStockOrder.GetDibStatus()
+    rqRet = objStockOrder.GetDibMsg1()
+    print("통신상태", rqStatus, rqRet)
+    if rqStatus != 0:
+        exit()
+ 
+    return render(request,'polls/main.html')
 
 
 

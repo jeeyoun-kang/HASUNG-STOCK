@@ -11,33 +11,53 @@
 <body>
     <script type="text/javascript">
         var i = 0;
-        var data = "{{hi}}";
-        var data1 = [ { Date: 1621339200000, Open: 488.4, High: 493.48, Low: 486.19, Close: 486.28, Volume: 2350500 }];
-        // var data = "[ { 'Date': 162, 'Open': 488.4 }]";
-        var arr = [];
-        var arr2 = [];
-        arr[0] = ""; arr[1] = ""; arr[2] = ""; arr[3] = ""; arr[4] = ""; arr[5] = "";
-        var j = 0;
-        while (data[i] != "]") {
-            if (data[i] == ":") {
-                i++;
-                while (data[i] != ",") {
-                    i++
-                    arr[j] = arr[j] + data[i];
+        var hi = "{{hi}}";
 
-                    if (data[i + 1] == "}") { break; }
-                    if (data[i + 1] == ",") { break; }
-                }
-                j++;
-            }
-            i++;
-        }
-        var k = 0;
+        // //var hi = [
+        //     { 'Date': 646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 },
+        //     { 'Date': 646224000000, 'Open': 400.93, 'High': 400.22, 'Low': 400.21, 'Close': 380.03, 'Volume': 5356800 }
+        // ] ;
+        // var obj = {'hi':hi};
+        const obj = JSON.stringify(hi);
+        var data = JSON.parse(hi); 
+
+        console.log(data[0]);
+        console.log(data[0].Date);
+        console.log(data[0].Open);
+        console.log(data);      
         
-        var testdata = [ { Date: 1621339200000, Open: 488.4, High: 493.48, Low: 486.19, Close: 486.28, Volume: 2350500 }];
-        arr = JSON.parse(JSON.stringify(arr))
-        document.write(arr);
-        document.write(typeof(arr));
+        document.write(data);
+
+
+        // document.write(data[0].toString());
+        // //document.write("AA");
+
+        // // var data = "[ { 'Date': 162, 'Open': 488.4 }]";
+        // var arr = [];
+        // var arr2 = [];
+        // arr[0] = ""; arr[1] = ""; arr[2] = ""; arr[3] = ""; arr[4] = ""; arr[5] = "";
+        // var j = 0;
+        // while (data[i] != "]") {
+        //     if (data[i] == ":") {
+        //         i++;
+        //         while (data[i] != ",") {
+        //             i++
+        //             arr[j] = arr[j] + data[i];
+
+        //             if (data[i + 1] == "}") { break; }
+        //             if (data[i + 1] == ",") { break; }
+        //         }
+        //         j++;
+        //     }
+        //     i++;
+        // }
+        // var k = 0;
+        // test = JSON.parse(data);
+        // var testdata = [ { Date: 1621339200000, Open: 488.4, High: 493.48, Low: 486.19, Close: 486.28, Volume: 2350500 }];
+    //    document.write(obj);
+        // arr = JSON.parse(JSON.stringify(arr))
+        // document.write(arr);
+        // document.write(typeof(arr));
         //document.write(typeof(JSON.parse(JSON.stringify(arr))));
         //document.write(typeof(JSON.parse(JSON.stringify(data))));
         //document.write(JSON.parse(JSON.stringify(arr)));

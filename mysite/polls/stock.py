@@ -265,15 +265,16 @@ def sell_all():
 if __name__ == '__main__':
     stockcode2 = sys.argv[1] 
     stockvalue = sys.argv[2]
-    print(type(stockcode2))
-    print(type(float(stockvalue)))
+    stockvalue = float(stockvalue)
+    print(stockcode2)
+    print(stockvalue)
     a = 'A005930'
     buy_number = 0.15
     try:
         symbol_list = [stockcode2]
         bought_list = []  # 매수 완료된 종목 리스트
         target_buy_count = 1  # 매수할 종목 수
-        buy_percent = float(stockvalue)
+        buy_percent = stockvalue
         printlog('check_creon_system() :', check_creon_system())  # 크레온 접속 점검
         stocks = get_stock_balance('ALL')  # 보유한 모든 종목 조회
         total_cash = int(get_current_cash())  # 100% 증거금 주문 가능 금액 조회
