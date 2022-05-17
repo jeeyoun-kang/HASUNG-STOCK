@@ -1,0 +1,108 @@
+body { background-color: white; 
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  
+  borderbox{
+    outline-style:auto;
+    outline-color: rgb(255, 155, 47);
+    width:100%;
+  }
+  login-sort{
+      font-size: large;
+      font-weight: bolder;  
+      float: left;
+      width:10%;
+      height:100%;
+  }
+  Sort { 
+      font-size: large;
+      font-weight: bolder;  
+      float: left;
+      width:25%;
+      height:100%;
+  }
+  Sort-current { 
+    font-size: large;
+    font-weight: bolder;  
+    width:auto;
+    height:100%;
+  }
+  logout{
+    position: absolute;
+    top:20px;
+    right:30px;
+  }
+  DL{
+    position: absolute;
+    top:900px;
+    right:30px;
+  }
+  spacing{
+    position:relative;
+    right:-10px;
+  }
+  impormation{
+    position: absolute;
+    top:80px;
+    left:1400px;
+  }
+    button{ 
+      width:100%;
+      /*border-radius: 40px; *//*박스 둥글게*/
+      text-align: auto;
+      white-space:nowrap;
+      background: rgb(255, 77, 46);
+      color:#fff;
+      border:none;
+      position:relative;
+      height:30px;
+      font-size:auto;
+      font-weight: bolder; 
+      padding:0 1.5em;
+      cursor:pointer;
+      transition:800ms ease all;
+      outline:none;
+    }
+    button:hover{
+      background:#fff;
+      color:rgb(255, 155, 47);
+    }
+    button:before,button:after{
+      content:'';
+      position:absolute;
+      top:0;
+      right:0;
+      height:2px;
+      width:0;
+      background: rgb(255, 77, 46);
+      transition:400ms ease all;
+    }
+    button:after{
+      right:inherit;
+      top:inherit;
+      left:0;
+      bottom:0;
+    }
+    button:hover:before,button:hover:after{
+      width:100%;
+      transition:800ms ease all;
+    }
+  
+    button2{ 
+      width:100%;
+      border-radius: 40px; /*박스 둥글게*/
+      text-align: auto;
+      white-space:nowrap;
+      background: linear-gradient(to left, rgb(255, 77, 46), rgb(255, 155, 47));
+      color:#fff;
+      border:none;
+      position:relative;
+      height:30px;
+      font-size:auto;
+      font-weight: bolder; 
+      padding:0 1.5em;
+      cursor:pointer;
+      transition:800ms ease all;
+      outline:none;
+    }
+  

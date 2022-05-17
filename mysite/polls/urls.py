@@ -14,7 +14,7 @@ urlpatterns = [
     path('main/test2/',views.test2),
     path('main/dl/',views.dl),
     path('main/buy/',views.mainbuy),
-    path('main/sell',views.mainsell),
+    path('main/sell/',views.mainsell),
     path('main/set/',views.set),
     path('main/fix/',views.fix),
     #path('main/sell/',views.mainsell),

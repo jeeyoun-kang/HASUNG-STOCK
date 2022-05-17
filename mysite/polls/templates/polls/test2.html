@@ -303,17 +303,13 @@
                 })
             ]
         })
-        var i = 0;
-        var cData1 = "{{hi}}"
-        //document.write(cData1);
+        var cData1 = "{{cData}}"
         var cData = cData1.replace(/&#x27;/gi, "\"");
-        var data = "{\"data\":" + cData + "}";
-        data = data.trim();
-        //document.write(data);
-
-
-        var data = json;
-
+        var data1 = "{\"data\":" + cData + "}";
+        data1 = data1.trim();
+        var testdata = JSON.parse(data1);
+        var data = testdata.data;
+        console.log(data);
         // set data to all series
         valueSeries.data.setAll(data);
         volumeSeries.data.setAll(data);
