@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
+import msvcrt
+
 import sys
+from multiprocessing import Process, Pipe
+
+
 
 
 def main():
@@ -17,6 +22,17 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
+# def f(conn):
+#     conn.send([42, None, 'hello'])
+#     conn.close()
+
 
 if __name__ == '__main__':
+    #parent_conn, child_conn = Pipe()
+    #p = Process(target=f, args=(child_conn,))
+    #p.start()
+    #print(parent_conn.recv())   # prints "[42, None, 'hello']"
+    # p.join()
+    #자식 프로세스면 wait
+    #부모면 main()
     main()

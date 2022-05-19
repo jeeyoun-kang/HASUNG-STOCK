@@ -72,6 +72,7 @@ def chart_rq1(request) :
 # 일/주/월 차트 조회 - 개수로 조회
 def chart_simple1(request):
     stockcode2 = request.POST.get('stockcode2')
+    stockcode2="A"+stockcode2
     stockvalue = request.POST.get('stockvalue')
     stockvalue2 = request.POST.get('stockvalue2')
     print(type(stockcode2))
@@ -478,6 +479,7 @@ def test2(request):
 def auto(request):
     
     stockcode2 = request.POST.get('stockcode2')
+    stockcode2="A"+stockcode2
     stockvalue = request.POST.get('stockvalue')
     print(stockcode2)
     print(stockvalue)
@@ -518,6 +520,7 @@ def current(request):
 
 def mainbuy(request):
     stockcode2 = request.POST.get('stockcode2')
+    stockcode2="A"+stockcode2
     stockvalue = request.POST.get('stockvalue')
     stockvalue2 = request.POST.get('stockvalue2')
     print(type(stockcode2))
@@ -565,6 +568,7 @@ def mainbuy(request):
 
 def mainsell(request): #매도
     stockcode2 = request.POST.get('stockcode2')
+    stockcode2="A"+stockcode2
     stockvalue = request.POST.get('stockvalue')
     stockvalue2 = request.POST.get('stockvalue2')
     print(type(stockcode2))
