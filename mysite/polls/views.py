@@ -16,8 +16,11 @@ import time
 from enum import Enum
 from matplotlib import pyplot as plt
 import json
-global stockcode2 
-global stockvalue
+from django.shortcuts import render
+from django.http import HttpResponse
+from .models import Stockname
+import subprocess
+
 
 pythoncom.CoInitialize()
 # 크레온 플러스 공통 OBJECT
@@ -483,7 +486,11 @@ def auto(request):
     stockvalue = request.POST.get('stockvalue')
     print(stockcode2)
     print(stockvalue)
-    os.system("python polls/stock.py {0} {1}".format(stockcode2, stockvalue))
+    #os.system("python polls/stock.py {0} {1}".format(stockcode2, stockvalue))
+    sp = subprocess.run(args=["python","polls/stock.py",stockcode2,stockvalue],shell=True)
+    global pid
+    pid = sp.pid
+    # sp.terminate()
     #print(stocklll)
     #print(stockcodelll)
     
@@ -614,7 +621,15 @@ def mainsell(request): #매도
     return render(request,'polls/main.html')
 
 def fix(request):
+    os.kill(pid,9)
     return render(request,'polls/main.html')
+
+def cancel(request):
+    return render(request,'polls/main.html')
+
+def mysql(request):
+    stocks = Stockname.objects.all()
+    return render(request, 'polls/test2.html',{'stocks':stocks})
 
 
 pythoncom.CoUninitialize()

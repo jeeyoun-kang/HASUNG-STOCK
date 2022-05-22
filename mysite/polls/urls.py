@@ -1,4 +1,6 @@
 from django.urls import path
+from django.contrib import admin
+
 
 from . import views
 
@@ -17,6 +19,8 @@ urlpatterns = [
     path('main/sell/',views.mainsell),
     path('main/set/',views.set),
     path('main/fix/',views.fix),
+    path('main/test/',views.mysql),
+    path('main/cancel/',views.cancel),
     #path('main/sell/',views.mainsell),
     #path('login/',views.login),
 ]

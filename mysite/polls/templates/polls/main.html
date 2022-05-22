@@ -206,6 +206,11 @@
       frm.action = "/main/chart/";
       frm.submit();
       return true;
+    }
+    function submit8(frm) {
+      frm.action = "/main/cancel/";
+      frm.submit();
+      return true;
     } 
   </script>
 
@@ -226,7 +231,8 @@
         <input class="button3 Sort" type="submit" value="매수" onClick='return submit1(this.form);'>
         <input class="button3 Sort" type="submit" value="매도" onClick='return submit2(this.form);'>
         <input class="button3 Sort" type="submit" value="자동매매" onClick='return submit3(this.form);'>
-        <input class="button3 Sort" type="submit" value="정정/취소" onClick='return submit6(this.form);'>
+        <input class="button3 Sort" type="submit" value="자동매매취소" onClick='return submit6(this.form);'>
+        <input class="button3 Sort" type="submit" value="정정/취소" onClick='return submit8(this.form);'>
         <input class="button3 Sort" type="submit" value="검색" onClick='return submit7(this.form);'>
 
       </div>
