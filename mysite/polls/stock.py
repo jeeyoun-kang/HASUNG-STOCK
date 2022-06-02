@@ -266,6 +266,7 @@ if __name__ == '__main__':
     stockcode2 = sys.argv[1] 
     stockvalue = sys.argv[2]
     stockvalue = float(stockvalue)
+    print(os.getpid())
     print(stockcode2)
     print(stockvalue)
     a = 'A005930'

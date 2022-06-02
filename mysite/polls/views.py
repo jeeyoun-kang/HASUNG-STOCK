@@ -20,7 +20,21 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Stockname
 import subprocess
+import pymysql
+import requests
+from bs4 import BeautifulSoup
+import re
+from PIL import Image
 
+
+
+conn = pymysql.connect(
+  host='127.0.0.1',
+  user='root',
+  password='227899',
+  db='stock')
+
+curs = conn.cursor()
 
 pythoncom.CoInitialize()
 # 크레온 플러스 공통 OBJECT
@@ -65,24 +79,204 @@ def waitRqLimit(rqtype):
 def charttest(request):
     data = [{ 'Date': 1646222400000, 'Open': 388.93, 'High': 389.22, 'Low': 375.21, 'Close': 380.03, 'Volume': 5356800 }]
     return render(request,'polls/test.html',{'data':data})
-
-
-def chart_rq1(request) :
-    chart_simple1(ord('D'), 'A005930', 100)
-    return render(request,'polls/test2.html')
-
-
+def query(request):
+    return render(request,'polls/test.html')
+def query2(request):
+    return render(request,'polls/3.html')
 # 일/주/월 차트 조회 - 개수로 조회
 def chart_simple1(request):
     stockcode2 = request.POST.get('stockcode2')
-    stockcode2="A"+stockcode2
+
+
+
+    my_title = []
+    link = []
+    image = []
+
+    name = stockcode2 #크롤링할 종목이름
+    j = 0
+
+    url = "https://search.naver.com/search.naver?where=news&sm=tab_pge&query=" + name + "&sort=0&photo=0&field=0&pd=0&ds=&de=&cluster_rank=55&mynews=0&office_type=0&office_section_code=0&news_office_checked=&nso=so:r,p:all,a:all&start=1"
+    bogi = "https://postfiles.pstatic.net/MjAyMTAzMjNfMTQ3/MDAxNjE2NDc3MTgxODkz.Q0De_R90sw1LVaTlhCSPqIq5rmT5wPjBFeV0gUakQ3Ig.QXjotxDdqPaL4kZO8skx6X1PrZrdG5FO2ADUYCOzq5Mg.JPEG.gyqls1225/IMG_3227.JPG?type=w773"
+
+    req = requests.get(url)
+    soup = BeautifulSoup(req.text, 'html.parser')
+    images = soup.select(".news_wrap.api_ani_send")
+    #sp_nws1 > div.news_wrap.api_ani_send > a > img
+
+    titles = soup.select(".news_tit")
+    for title in titles:     
+        href = title.attrs["href"]
+        data = title.text
+        my_title.append(data)
+        link.append(href)
+    
+        
+    for img in images:
+        img_data = img.select_one("a > img")
+        #img_data = img.select_one("a > img")['src']
+        if(img_data is None):
+            image.append(bogi)
+            continue
+        image.append(img_data.get('src'))
+
+
+    
+
+    
+    print(image[0])
+
+
+    curs.execute("SELECT code FROM stock.stockname where name =%s",stockcode2)
+    
+    rs = curs.fetchall()
+    for row in rs:
+        for code in row:
+            print(code,end='') 
+    
+    
+    code = "A"+code
     stockvalue = request.POST.get('stockvalue')
     stockvalue2 = request.POST.get('stockvalue2')
     print(type(stockcode2))
     print(type(stockvalue))
     print(type(stockvalue2))
     objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
-    objStockChart.SetInputValue(0, stockcode2)  # 종목 코드 - 삼성전자
+    objStockChart.SetInputValue(0, code)  # 종목 코드 - 삼성전자
+    objStockChart.SetInputValue(1, ord('2'))  # 개수로 조회
+    objStockChart.SetInputValue(4, 100)
+    objStockChart.SetInputValue(5, [0, 2, 3, 4, 5, 8])  # 날짜,시가,고가,저가,종가,거래량
+    objStockChart.SetInputValue(6, ord('D'))  # '차트 주기
+    objStockChart.SetInputValue(8, ord('0'))  # 갭보정여부(char)
+    objStockChart.SetInputValue(9, ord('1'))  # 수정주가(char) - '0': 무수정 '1': 수정주가
+    objStockChart.SetInputValue(10, ord('1'))  # 거래량구분(char) - '1' 시간외거래량모두포함[Default]
+
+    cData = []
+
+    while (1):
+        # 시세 연속 제한 체크 
+        waitRqLimit(Rqtype.SISE)
+        # 차트 통신
+        objStockChart.BlockRequest()
+        rqStatus = objStockChart.GetDibStatus()
+        rqRet = objStockChart.GetDibMsg1()
+        print("통신상태", rqStatus, rqRet)
+        if rqStatus != 0:
+            return
+
+        clen = objStockChart.GetHeaderValue(3)
+
+
+        for i in range(0, clen):
+            item = {}
+            dateFormat = '%Y%m%d'
+            date = objStockChart.GetDataValue(0, i)
+            Y = int(date / 10000)
+            m = int((date - (Y * 10000)) / 100)
+            d = date - Y*10000 - m*100
+            dt = datetime(Y, m, d)
+            a = time.mktime(dt.timetuple())
+            # a = objStockChart.GetDataValue(0, i)
+            item['Date'] = int(a) * 1000
+            item['Open'] = objStockChart.GetDataValue(1, i)
+            item['High'] = objStockChart.GetDataValue(2, i)
+            item['Low'] = objStockChart.GetDataValue(3, i)
+            item['Close'] = objStockChart.GetDataValue(3, i)
+            item['Volume'] = objStockChart.GetDataValue(5, i)
+            
+            cData.append(item)
+            
+        if (objStockChart.Continue == False):
+            # print('연속플래그 없음')
+            break
+
+    request.session['test'] = cData
+    request.session['name'] = stockcode2
+    request.session['title'] = my_title
+    request.session['link'] = link
+    request.session['news'] = image
+    
+    return render(request, 'polls/main.html', {"cData": cData,"stockcode3":stockcode2,
+    'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
+
+   
+def dl(request):
+    return render(request,"polls/dl.html")
+
+def get_current_cash():
+    """증거금 100% 주문 가능 금액을 반환한다."""
+    cpTradeUtil.TradeInit()
+    acc = cpTradeUtil.AccountNumber[0]  # 계좌번호
+    accFlag = cpTradeUtil.GoodsList(acc, 1)  # -1:전체, 1:주식, 2:선물/옵션
+    cpCash.SetInputValue(0, acc)  # 계좌번호
+    cpCash.SetInputValue(1, accFlag[0])  # 상품구분 - 주식 상품 중 첫번째
+    cpCash.BlockRequest()
+    return cpCash.GetHeaderValue(9)  # 증거금 100% 주문 가능 금액
+
+
+    
+def index(request):
+    return render(request,'polls/hello.html')
+    #return HttpResponse("Hello, world. You're at the polls index.")
+
+def hello(request):
+    
+    if request.method == "POST":
+        list=request.POST.get("num")
+        hi=request.POST.get("name")
+        passwd = request.POST.get("pass")
+        print(list)
+        print(hi)
+        print(passwd)
+        os.system('taskkill /IM coStarter* /F /T')
+        os.system('taskkill /IM CpStart* /F /T')
+        os.system('taskkill /IM DibServer* /F /T')
+        os.system('wmic process where "name like \'%coStarter%\'" call terminate')
+        os.system('wmic process where "name like \'%CpStart%\'" call terminate')
+        os.system('wmic process where "name like \'%DibServer%\'" call terminate')
+               
+    
+        app = application.Application()
+        app.start('C:\CREON\STARTER\coStarter.exe /prj:cp /id:{list} /pwd:{hi} /pwdcert:{passwd} /autostart'.format(list=list, hi=hi, passwd=passwd))
+        time.sleep(20)
+
+    stockcode3= '삼성전자'
+       
+    image = []
+    my_title = []
+    link = []
+    name = stockcode3 #크롤링할 종목이름
+    j = 0
+
+    url = "https://search.naver.com/search.naver?where=news&sm=tab_pge&query=" + name + "&sort=0&photo=0&field=0&pd=0&ds=&de=&cluster_rank=55&mynews=0&office_type=0&office_section_code=0&news_office_checked=&nso=so:r,p:all,a:all&start=1"
+    bogi = "https://postfiles.pstatic.net/MjAyMTAzMjNfMTQ3/MDAxNjE2NDc3MTgxODkz.Q0De_R90sw1LVaTlhCSPqIq5rmT5wPjBFeV0gUakQ3Ig.QXjotxDdqPaL4kZO8skx6X1PrZrdG5FO2ADUYCOzq5Mg.JPEG.gyqls1225/IMG_3227.JPG?type=w773"
+
+    req = requests.get(url)
+    soup = BeautifulSoup(req.text, 'html.parser')
+    images = soup.select(".news_wrap.api_ani_send")
+    titles = soup.select(".news_tit")
+    for title in titles:     
+        href = title.attrs["href"]
+        data = title.text
+        my_title.append(data)
+        link.append(href)
+
+    for img in images:
+        img_data = img.select_one("a > img")
+        #img_data = img.select_one("a > img")['src']
+        if(img_data is None):
+            image.append(bogi)
+            continue
+        image.append(img_data.get('src'))
+
+
+
+    code = 'A005930'
+    objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
+    objStockChart.SetInputValue(0, code)  # 종목 코드 - 삼성전자
     objStockChart.SetInputValue(1, ord('2'))  # 개수로 조회
     objStockChart.SetInputValue(4, 100)
     objStockChart.SetInputValue(5, [0, 2, 3, 4, 5, 8])  # 날짜,시가,고가,저가,종가,거래량
@@ -123,57 +317,20 @@ def chart_simple1(request):
             item['Low'] = objStockChart.GetDataValue(3, i)
             item['Close'] = objStockChart.GetDataValue(3, i)
             item['Volume'] = objStockChart.GetDataValue(5, i)
+            
             cData.append(item)
-
-            # list1.append(item['날짜'])
-            # list2.append(item['시가'])
 
         if (objStockChart.Continue == False):
             # print('연속플래그 없음')
             break
-
-    return render(request, 'polls/main.html', {"cData": cData})
-
-   
-def dl(request):
-    return render(request,"polls/dl.html")
-
-def get_current_cash():
-    """증거금 100% 주문 가능 금액을 반환한다."""
-    cpTradeUtil.TradeInit()
-    acc = cpTradeUtil.AccountNumber[0]  # 계좌번호
-    accFlag = cpTradeUtil.GoodsList(acc, 1)  # -1:전체, 1:주식, 2:선물/옵션
-    cpCash.SetInputValue(0, acc)  # 계좌번호
-    cpCash.SetInputValue(1, accFlag[0])  # 상품구분 - 주식 상품 중 첫번째
-    cpCash.BlockRequest()
-    return cpCash.GetHeaderValue(9)  # 증거금 100% 주문 가능 금액
+    return render(request,'polls/main.html',{'cData':cData,'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'stockcode3':stockcode3,'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],
+    'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
 
 
 
-def index(request):
-    return render(request,'polls/hello.html')
-    #return HttpResponse("Hello, world. You're at the polls index.")
-
-def hello(request):
-    if request.method == "POST":
-        list=request.POST.get("num")
-        hi=request.POST.get("name")
-        passwd = request.POST.get("pass")
-        print(list)
-        print(hi)
-        print(passwd)
-        os.system('taskkill /IM coStarter* /F /T')
-        os.system('taskkill /IM CpStart* /F /T')
-        os.system('taskkill /IM DibServer* /F /T')
-        os.system('wmic process where "name like \'%coStarter%\'" call terminate')
-        os.system('wmic process where "name like \'%CpStart%\'" call terminate')
-        os.system('wmic process where "name like \'%DibServer%\'" call terminate')
-        time.sleep(5)        
-    
-        app = application.Application()
-        app.start('C:\CREON\STARTER\coStarter.exe /prj:cp /id:{list} /pwd:{hi} /pwdcert:{passwd} /autostart'.format(list=list, hi=hi, passwd=passwd))
-        time.sleep(5)
-    return render(request,'polls/main.html')
 
 def dbgout(message):
     """인자로 받은 문자열을 파이썬 셸과 슬랙으로 동시에 출력한다."""
@@ -482,20 +639,33 @@ def test2(request):
 def auto(request):
     
     stockcode2 = request.POST.get('stockcode2')
-    stockcode2="A"+stockcode2
-    stockvalue = request.POST.get('stockvalue')
-    print(stockcode2)
-    print(stockvalue)
-    #os.system("python polls/stock.py {0} {1}".format(stockcode2, stockvalue))
-    sp = subprocess.run(args=["python","polls/stock.py",stockcode2,stockvalue],shell=True)
-    global pid
-    pid = sp.pid
-    # sp.terminate()
-    #print(stocklll)
-    #print(stockcodelll)
+    curs.execute("SELECT code FROM stock.stockname where name =%s",stockcode2)
     
-    #test(request)
-    return render(request,'polls/main.html')
+    rs = curs.fetchall()
+    for row in rs:
+        for stockcode2 in row:
+            print(stockcode2,end='') 
+    
+    stockcode2 = "A"+stockcode2
+    stockvalue = request.POST.get('stockpercent')
+    global sp
+    
+    #os.system("python polls/stock.py {0} {1}".format(stockcode2, stockvalue))
+    sp = subprocess.Popen(["python","polls/stock.py",stockcode2,stockvalue])
+    
+    
+    
+    # sp.terminate()
+    testchart = request.session['test']
+    my_title = request.session['title']
+    link = request.session['link']
+    chartname = request.session['name']
+    image =  request.session['news'] 
+    return render(request,'polls/main.html',{'testchart':testchart,'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'chartname':chartname,'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],
+    'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
 
 def set(request):
     return render(request,'polls/main.html')
@@ -511,25 +681,44 @@ def current(request):
     cpTradeUtil.TradeInit()
     acc = cpTradeUtil.AccountNumber[0] #계좌번호
     print(acc)
-    name = '계좌번호:'
-    hi = '계좌명:'
+    name = '계좌번호 :'
+    hi = '계좌명 :'
     #account = '결제잔고수량:'
-    money = '평가금액:'
-    profit = '평가손익:'
-    event = '종목수:'
+    money = '평가금액 :'
+    profit = '평가손익 :'
+    event = '종목수 :'
     hi1 = str(cpBalance.GetHeaderValue(0))
     #account1 = str(cpBalance.GetHeaderValue(1))
     money1 = str(cpBalance.GetHeaderValue(3))
     profit1 = str(cpBalance.GetHeaderValue(4))
     event1 = str(cpBalance.GetHeaderValue(7))
     
-    return render(request,'polls/main.html',{'hi':hi,'money':money,'profit':profit,'event':event,'hi1':hi1,'money1':money1,'profit1':profit1,'event1':event1,'acc':acc,'name':name})
+    testchart = request.session['test']
+    my_title = request.session['title']
+    link = request.session['link']
+    chartname = request.session['name']
+    image = request.session['news']
+    
+    return render(request,'polls/main.html',{'hi':hi,'money':money,'profit':profit,'event':event,'hi1':hi1,'money1':money1,'profit1':profit1,'event1':event1,'acc':acc,'name':name,'testchart':testchart,'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'chartname':chartname,'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],
+    'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
 
 def mainbuy(request):
     stockcode2 = request.POST.get('stockcode2')
-    stockcode2="A"+stockcode2
+    
     stockvalue = request.POST.get('stockvalue')
     stockvalue2 = request.POST.get('stockvalue2')
+    curs.execute("SELECT code FROM stock.stockname where name =%s",stockcode2)
+    rs = curs.fetchall()
+    for row in rs:
+        for stockcode2 in row:
+            print(stockcode2,end='') 
+    
+    stockcode2 = "A"+stockcode2
+    stockvalue = float(stockvalue)
+    stockvalue = int(stockvalue)
     print(type(stockcode2))
     print(type(stockvalue))
     print(type(stockvalue2))
@@ -571,11 +760,26 @@ def mainbuy(request):
     print("통신상태", rqStatus, rqRet)
     if rqStatus != 0:
         exit()
-    return render(request,'polls/main.html',{'price':price})
+    testchart = request.session['test']
+    my_title = request.session['title']
+    link = request.session['link']
+    chartname = request.session['name']
+    image = request.session['news']
+    return render(request,'polls/main.html',{'testchart':testchart,'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'chartname':chartname,'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],
+    'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
 
 def mainsell(request): #매도
     stockcode2 = request.POST.get('stockcode2')
-    stockcode2="A"+stockcode2
+    curs.execute("SELECT code FROM stock.stockname where name =%s",stockcode2)
+    rs = curs.fetchall()
+    for row in rs:
+        for stockcode2 in row:
+            print(stockcode2,end='') 
+    
+    stockcode2 = "A"+stockcode2
     stockvalue = request.POST.get('stockvalue')
     stockvalue2 = request.POST.get('stockvalue2')
     print(type(stockcode2))
@@ -618,18 +822,49 @@ def mainsell(request): #매도
     print("통신상태", rqStatus, rqRet)
     if rqStatus != 0:
         exit()
-    return render(request,'polls/main.html')
+    testchart = request.session['test']
+    my_title = request.session['title']
+    link = request.session['link']
+    chartname = request.session['name']
+    image = request.session['news']
+    return render(request,'polls/main.html',{'testchart':testchart,'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'chartname':chartname,'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],
+    'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
 
 def fix(request):
-    os.kill(pid,9)
-    return render(request,'polls/main.html')
+    
+    sp.kill()
+    testchart = request.session['test']
+    my_title = request.session['title']
+    link = request.session['link']
+    chartname = request.session['name']
+    image = request.session['news']
+    return render(request,'polls/main.html',{'testchart':testchart,'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'chartname':chartname,'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],
+    'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
 
 def cancel(request):
-    return render(request,'polls/main.html')
+    os.system("python cancel.py")
+    testchart = request.session['test']
+    my_title = request.session['title']
+    link = request.session['link']
+    chartname = request.session['name']
+    image = request.session['news']
+    return render(request,'polls/main.html',{'testchart':testchart,'my_title0':my_title[0],'link0':link[0],'my_title1':my_title[1],'link1':link[1],'my_title2':my_title[2],'link2':link[2],
+    'my_title3':my_title[3],'link3':link[3],'my_title4':my_title[4],'link4':link[4],'my_title5':my_title[5],'link5':link[5],
+    'my_title6':my_title[6],'link6':link[6],'my_title7':my_title[7],'link7':link[7],'my_title8':my_title[8],'link8':link[8],
+    'my_title9':my_title[9],'link9':link[9],'chartname':chartname,'image0':image[0],'image1':image[1],'image2':image[2],'image3':image[3],
+    'image4':image[4],'image5':image[5],'image6':image[6],'image7':image[7],'image8':image[8],'image9':image[9]})
 
 def mysql(request):
     stocks = Stockname.objects.all()
     return render(request, 'polls/test2.html',{'stocks':stocks})
+
+
 
 
 pythoncom.CoUninitialize()

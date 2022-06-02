@@ -7,6 +7,7 @@ from . import views
 urlpatterns = [
     path('', views.login),
     path('main/',views.hello),
+   
     path('test/',views.test),
     path('main/logout/',views.logout),
     path('main/auto/',views.auto),
@@ -21,6 +22,9 @@ urlpatterns = [
     path('main/fix/',views.fix),
     path('main/test/',views.mysql),
     path('main/cancel/',views.cancel),
+    path('main/query/',views.query),
+    path('main/query/3.html',views.query2),
+    
     #path('main/sell/',views.mainsell),
     #path('login/',views.login),
 ]
