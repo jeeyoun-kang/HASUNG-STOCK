@@ -1,4 +1,9 @@
 - 팀명 : 한성 주주
+- 팀원 :
+정병현 : 프로젝트 총괄, 웹 설계
+김예림 : Machine Learning
+강지윤 : 웹 설계 및 구축
+이경훈 : Machine Learning
 - 작품명 : HANSUNG STOCK
 
 - 작품개요 : 딥러닝을 이용한 주가 예측 및 주식 매매 자동화 웹 사이트
