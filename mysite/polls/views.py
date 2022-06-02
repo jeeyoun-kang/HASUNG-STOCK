@@ -31,7 +31,7 @@ from PIL import Image
 conn = pymysql.connect(
   host='127.0.0.1',
   user='root',
-  password='227899',
+  password='',
   db='stock')
 
 curs = conn.cursor()
