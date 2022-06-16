@@ -1,6 +1,7 @@
 # HANSUNG STOCK
 
 ## 딥러닝을 이용한 주가 예측 및 주식 매매 자동화 웹 사이트
+![test](https://user-images.githubusercontent.com/59076085/174029721-9b8f58c8-05f1-4b71-a70a-45506711ab7f.JPG)
 
 ### 팀원 
 
