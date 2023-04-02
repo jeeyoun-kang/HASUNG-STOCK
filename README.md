@@ -97,7 +97,7 @@
 
 - Twitter에서 제공하는 Tweepy Api, BeautifulSoup으로 수집 대상인 회사와 관련된 트윗 및 기사를 수집했습니다.
   - [BeautifulSoup을 이용한 기사 크롤링](https://github.com/jeeyoun-kang/HASUNG-STOCK/blob/50af70f98312f416d3c2118277768fa550ce5d7c/Text%20Mining/pos_neg.py#L92)
-  - [TwitterApi를 이용한 SNS 데이터 크롤링]()
+  - [TwitterApi를 이용한 SNS 데이터 크롤링](https://github.com/jeeyoun-kang/HASUNG-STOCK/blob/6c9c7b493b154e3c03195516b50689d7266f42ef/Text%20Mining/TwitCrawling.ipynb?short_path=035a699#L197)
 
 - KonlPy를 이용해 수집된 데이터 모델을 구축하고, LogisticRegression 함수를 이용해 모델 학습을 진행했습니다.
   - [데이터를 분석해 벡터화](https://github.com/jeeyoun-kang/HASUNG-STOCK/blob/50af70f98312f416d3c2118277768fa550ce5d7c/Text%20Mining/pos_neg.py#L171)
